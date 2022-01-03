@@ -13,6 +13,11 @@ class TodoListViewController: UITableViewController {
 
     var itemsArray = [Item]()
     var todoArray = [Todo]()
+    var selectedCategory: Category? {
+        didSet { //everything within these curly braces will be run once the value of selectedCategory is set. This ensures the code we write here will only be triggered when the value of selectedCategory has been set.
+            loadTodos()
+        }
+    }
     
     //create an interface to the user's defaults database to be used for persistent local storage of defaults (key-value data). User defaults get saved in a plist file. User default should be used only for saving small bits of data
     let defaults = UserDefaults.standard //(in cases when using userdefault to save standard key-value data)
@@ -27,24 +32,25 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //set searchbar delegate as self (we alredy did this via the main story board by linking the serachbar's delegate to TodoListViewController, hence we don't need do it in code. So here's another multiple ways of doing the same thing)
+        
+        
         //print file path so we can visually see the data that we save to the plist
         //print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first)
         
         //retrieve todos from plist
         //loadItems() //commented out cause I am loading todos from coredata now
-        loadTodos()
     }
     
     func loadTodos() {
         //create a fetch request
         let request: NSFetchRequest<Todo> = Todo.fetchRequest()
-        //using the context of our core data which is the mediator by which we perform any operation in the sqlite database
-        do {
-            //fetch request and assign result to todArray
-            todoArray = try context.fetch(request)
-        } catch {
-            print("error fetching request \(error)")
-        }
+         //query the fetch request by category. Only todos which belong to the selected category should be retrieved
+        let predicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        //set the predicate of the fetch request
+        request.predicate = predicate
+        //fetch request
+        fetchTodos(with: request)
     }
     
     //method to retrieve data from plist
@@ -85,7 +91,6 @@ class TodoListViewController: UITableViewController {
     }
     
     //override the tableview delegte methods from UITableViewController required to respond to changes and events in the table view
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)
         //toggle accessoryType
@@ -116,8 +121,6 @@ class TodoListViewController: UITableViewController {
         let alertController = UIAlertController(title: "Add New Todo Item", message: "", preferredStyle: .alert)
         //create an UIAlertAction to be performed when a user click this action represented by a button with a title and style
         let action = UIAlertAction(title: "Add Item", style: .default) { action in
-            //declare what should happen when user clicks on this action
-            print("Success")
             if let text = textField.text {
                 
                 //append item to array (in cases when using userdefault to save standard key-value data or using codable to save custom data types to plist)
@@ -131,11 +134,11 @@ class TodoListViewController: UITableViewController {
                 //set the properties of todo and save context
                 todo.title = text
                 todo.done = false
+                todo.parentCategory = self.selectedCategory //set the entity relationship of todo to category
                 //append new todo to todoArray
                 self.todoArray.append(todo)
                 //save todos
                 self.saveTodos()
-                
                 //reload tableview to display newly added data
                 self.tableView.reloadData()
             }
@@ -184,6 +187,68 @@ class TodoListViewController: UITableViewController {
         }
         
         
+    }
+    
+}
+
+//MARK: - UISearchDisplay Delegate
+extension TodoListViewController: UISearchBarDelegate {
+    
+    //implement the delegate methods we wish to respond to when a user takes an action on the search bar
+    
+    //this method will be triggered once the user click the searchBar search button
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        //because the delegate method 'func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)' is already taking care of the search as the search text changes, we don't need to do much when the search button is clicked by the user since the result of the search will already be available even before they clcik the search button. We can simply just reload the table view
+        //reload tableview
+        tableView.reloadData()
+    }
+
+    //query requested data with searchText and default request if non is provided
+    func queryRequestedDataWithSearchText(_ request: NSFetchRequest<Todo> = Todo.fetchRequest(), searchText text: String) {
+        //create an NSPredicate with which we will filter the requested data
+        let diacriticPredicate = NSPredicate(format: "title CONTAINS[cd] %@", text) //the predicate reads thus: for each Todo in the todo array, look for the todos whoose 'title' property contains the entered text in the search bar. Essentially '%@' will be replaced with the value of searchBar.text. [cd] specifies case and diacritic insensitivity
+        //create another NSPredicate which filters and retrieves only those todos whoose parentCategory.name matches the selected category's name
+        let parentCategoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        //combine both predicates to form a compound predicate that will be used for query the fetched todos
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [diacriticPredicate, parentCategoryPredicate])
+        //assign the compound predicate as the predicate of the created fetch request
+        request.predicate = compoundPredicate
+        //crete a description of how we want to sort the data we get back, here we sort using the titles of each of the todo and specify the order
+        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
+        //add the sort descriptor to the fetch request sortDescriptors, which can accept any number of descriptors
+        request.sortDescriptors = [sortDescriptor]
+        
+        //fetch request
+        fetchTodos(with: request)
+    }
+    
+    //method will be called whenever search text changes, if empty, load all todos, else query the data base with search text
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty {
+            loadTodos()
+            //unfocus the searchbar, close down keyboard
+            //codes that affect the UI must be run asycnchronously and dispatched to the main
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+            
+        } else {
+            queryRequestedDataWithSearchText(searchText: searchText)
+        }
+        //reload tableview to display retrieved data
+        tableView.reloadData()
+    }
+
+    
+    //reuseable method for fetching todo requests
+    func fetchTodos(with request: NSFetchRequest<Todo>) {
+        //using the context of our core data which is the mediator by which we perform any operation in the sqlite database
+        do {
+            //fetch request and assign result to todoArray
+            todoArray = try context.fetch(request)
+        } catch {
+            print("error fetching request \(error)")
+        }
     }
     
 }
