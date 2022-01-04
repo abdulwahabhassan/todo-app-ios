@@ -8,8 +8,10 @@
 
 import UIKit
 import RealmSwift //import RealmSwift
+import SwipeCellKit
 
-class CategoryViewController: UITableViewController {
+//subclass SwipeTableViewController 
+class CategoryViewController: SwipeTableViewController {
     
     //initialize realm
     let realm = try! Realm()
@@ -20,7 +22,6 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
         //load categories when view loads
         loadCategories()
-
     }
     
     func loadCategories() {
@@ -76,7 +77,9 @@ class CategoryViewController: UITableViewController {
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        //tap into the superclass and retrieve cell
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        //set cell textlabel
         cell.textLabel?.text = realmCategories?[indexPath.row].name ?? "No Categories Added yet"
         return cell
     }
@@ -87,6 +90,25 @@ class CategoryViewController: UITableViewController {
         performSegue(withIdentifier: "goToTodos", sender: self)
     }
     
+    //override method from SwipeTableViewController
+    override func updateModel(at indexPath: IndexPath) {
+        if let category = realmCategories?[indexPath.row] {
+            deleteCategory(category: category)
+        }
+    }
+    
+    //method to delete category
+    func deleteCategory(category: RealmCategory) {
+        do {
+            try realm.write {
+                realm.delete(category)
+            }
+        } catch {
+            print("error deleting category from realm \(error)")
+        }
+    }
+    
+    //MARK: - Segue
     //method will be called prior to performing the segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //because this method will be called any number of times prior to performing any segue, in case where our view controller may have multiple segues, we must first check that the identifier of the segue corresponds to the segue we want to perform before retrieving its destination and downcasting it to the sepcific view controller the segue is linked to
@@ -101,3 +123,4 @@ class CategoryViewController: UITableViewController {
     }
 
 }
+

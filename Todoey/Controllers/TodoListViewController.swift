@@ -9,7 +9,8 @@
 import UIKit
 import RealmSwift
 
-class TodoListViewController: UITableViewController {
+//subclass SwipeTableViewController 
+class TodoListViewController: SwipeTableViewController {
 
     let realm = try! Realm() //initialize realm
     var realmTodos: Results<RealmTodo>?
@@ -29,29 +30,31 @@ class TodoListViewController: UITableViewController {
         realmTodos = selectedCategory?.todos.sorted(byKeyPath: "title", ascending: true) //retrieve the todos in the selected category and sort them by title in ascending order
     }
 
-    //override the tableview data source methods from UITableViewController required to populate the tableview
+    //override the tableview data source methods from SwipeTableViewController required to populate the tableview
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //return number of rows for the tableview
         return realmTodos?.count ?? 1
     }
     
+    //override the tableview methods from SwipeTableViewController
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //create and return a reuseable table view cell
-        let tableViewCell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
+        //tap into superclass and retrieve reusablecell
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
        
         //assign todo title to cell text label if it is not nil
+        //set cell textlabel
         if let todo = realmTodos?[indexPath.row] {
-            tableViewCell.textLabel?.text = todo.title
+            cell.textLabel?.text = todo.title
             //set accessoryType
-            setAccessoryType(todo, tableViewCell, indexPath.row)
+            setAccessoryType(todo, cell, indexPath.row)
         } else {
-            tableViewCell.textLabel?.text = "No todos added yet"
+            cell.textLabel?.text = "No Todos added yet"
         }
         
-        return tableViewCell
+        return cell
     }
     
-    //override the tableview delegte methods from UITableViewController required to respond to changes and events in the table view
+    //override the tableview methods from SwipeTableViewController required to respond to changes and events in the table view
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         //retrieve the todo corresponding to the selected row
@@ -59,7 +62,26 @@ class TodoListViewController: UITableViewController {
             updateTodoStatus(todo)
         }
         tableView.deselectRow(at: indexPath, animated: true) //to clear the selection indicator on the background
+        //reload tableview
         tableView.reloadData()
+    }
+    
+    //override method from SwipeTableViewController. This method is called when a swipe action is performed
+    override func updateModel(at indexPath: IndexPath) {
+        if let todo = realmTodos?[indexPath.row] {
+            deleteTodo(todo: todo)
+        }
+    }
+    
+    //method to delete todo
+    func deleteTodo(todo: RealmTodo) {
+        do {
+            try realm.write {
+                realm.delete(todo)
+            }
+        } catch {
+            print("error deleting todo from realm \(error)")
+        }
     }
     
     //method to update todo status by writing to realm
@@ -123,19 +145,8 @@ class TodoListViewController: UITableViewController {
         }
         
     }
-    
-    //method to delete a todo
-    func deleteTodo(todo: RealmTodo) {
-        do {
-            try realm.write{
-                realm.delete(todo)
-            }
-        } catch {
-            print("error deleting todo from realm \(error)")
-        }
-    }
-    
 }
+    
 
 //MARK: - UISearchDisplay Delegate
 extension TodoListViewController: UISearchBarDelegate {

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0410604E27847FF100475769 /* RealmTodo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0410604D27847FF100475769 /* RealmTodo.swift */; };
 		0410605027847FFF00475769 /* RealmCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0410604F27847FFF00475769 /* RealmCategory.swift */; };
+		041060522784C63A00475769 /* SwipeTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041060512784C63A00475769 /* SwipeTableViewController.swift */; };
 		04B862EC278356E100E9D791 /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B862EB278356DF00E9D791 /* CategoryViewController.swift */; };
 		EB2BE4FA239524DB00FB933B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2BE4F9239524DB00FB933B /* AppDelegate.swift */; };
 		EB2BE4FE239524DB00FB933B /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2BE4FD239524DB00FB933B /* TodoListViewController.swift */; };
@@ -20,6 +21,7 @@
 /* Begin PBXFileReference section */
 		0410604D27847FF100475769 /* RealmTodo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmTodo.swift; sourceTree = "<group>"; };
 		0410604F27847FFF00475769 /* RealmCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmCategory.swift; sourceTree = "<group>"; };
+		041060512784C63A00475769 /* SwipeTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeTableViewController.swift; sourceTree = "<group>"; };
 		04B862EB278356DF00E9D791 /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
 		EB2BE4F6239524DB00FB933B /* Todoey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todoey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB2BE4F9239524DB00FB933B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -55,6 +57,7 @@
 			children = (
 				04B862EB278356DF00E9D791 /* CategoryViewController.swift */,
 				EB2BE4FD239524DB00FB933B /* TodoListViewController.swift */,
+				041060512784C63A00475769 /* SwipeTableViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -172,6 +175,7 @@
 				EB2BE4FE239524DB00FB933B /* TodoListViewController.swift in Sources */,
 				0410605027847FFF00475769 /* RealmCategory.swift in Sources */,
 				0410604E27847FF100475769 /* RealmTodo.swift in Sources */,
+				041060522784C63A00475769 /* SwipeTableViewController.swift in Sources */,
 				EB2BE4FA239524DB00FB933B /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
