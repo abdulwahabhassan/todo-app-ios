@@ -9,6 +9,7 @@
 import UIKit
 import RealmSwift //import RealmSwift
 import SwipeCellKit
+import ChameleonFramework
 
 //subclass SwipeTableViewController 
 class CategoryViewController: SwipeTableViewController {
@@ -17,7 +18,6 @@ class CategoryViewController: SwipeTableViewController {
     let realm = try! Realm()
     var realmCategories: Results<RealmCategory>? //this type is the data type we get from realm when we query for items in the database. This will hold the results from querying all the categories in the database
    
-
     override func viewDidLoad() {
         super.viewDidLoad()
         //load categories when view loads

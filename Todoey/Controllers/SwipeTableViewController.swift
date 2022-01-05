@@ -9,15 +9,36 @@
 import UIKit
 import SwipeCellKit
 import RealmSwift
+import ChameleonFramework
 
+//MARK: - UITableViewController
 //create custom class that inherits UITableViewController and adopts SwipeTableViewCellDelegate
-class SwipeTableViewController: UITableViewController, SwipeTableViewCellDelegate {
+class SwipeTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
         //increase row height
         tableView.rowHeight = 80.0
     }
+    
+    //method will be overrided in subclasses
+    func updateModel(at indexPath: IndexPath) {}
+    
+    //override method from superclass UITableViewController
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        //create reuseablecell
+        //in order to implement swipeable cell using SwipeCellKit, downcast cell as SwipeTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! SwipeTableViewCell //do not forget to specify the Cell as a subclass of SwipeTableViewCell and its Module as SwipeCellKit in the storyboard view inspector
+        //set cell delegate to self which adopts SwipeTableViewCellDelegate
+        cell.delegate = self
+        return cell
+    }
+
+}
+
+
+//MARK: - SwipeTableViewCellDelegate
+extension SwipeTableViewController: SwipeTableViewCellDelegate {
     
     //delegate method from SwipeTableViewCellDelegate
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
@@ -37,17 +58,4 @@ class SwipeTableViewController: UITableViewController, SwipeTableViewCellDelegat
         return [deleteAction]
     }
     
-    //method will be overrided in subclasses
-    func updateModel(at indexPath: IndexPath) {}
-    
-    //override method from superclass UITableViewController
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //create reuseablecell
-        //in order to implement swipeable cell using SwipeCellKit, downcast cell as SwipeTableViewCell
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! SwipeTableViewCell //do not forget to specify the Cell as a subclass of SwipeTableViewCell and its Module as SwipeCellKit in the storyboard view inspector
-        //set cell delegate to self which adopts SwipeTableViewCellDelegate
-        cell.delegate = self
-        return cell
-    }
-
 }

@@ -22,8 +22,11 @@ class TodoListViewController: SwipeTableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         //set searchbar delegate as self (we alredy did this via the main story board by linking the serachbar's delegate to TodoListViewController, hence we don't need do it in code. So here's another multiple ways of doing the same thing)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        title = selectedCategory?.name
     }
     
     func loadTodos() {
@@ -161,11 +164,6 @@ extension TodoListViewController: UISearchBarDelegate {
         tableView.reloadData()
     }
     
-    func filterAndSortTodos(_ searchText: String) {
-        //filter todos using an NSPredicate format which checks for todos whose title contains the searchbar text. Sort the returned todos in ascending date order
-        realmTodos = realmTodos?.filter("title CONTAINS[cd] %@", searchText).sorted(byKeyPath: "dateCreated", ascending: true)
-    }
-
     //method will be called whenever search text changes, if empty, load all todos, else query the data base with search text
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.isEmpty {
@@ -181,6 +179,13 @@ extension TodoListViewController: UISearchBarDelegate {
         //reload tableview to display retrieved data
         tableView.reloadData()
     }
+    
+    func filterAndSortTodos(_ searchText: String) {
+        //filter todos using an NSPredicate format which checks for todos whose title contains the searchbar text. Sort the returned todos in ascending date order
+        realmTodos = realmTodos?.filter("title CONTAINS[cd] %@", searchText).sorted(byKeyPath: "dateCreated", ascending: true)
+    }
+
+    
     
 }
 
